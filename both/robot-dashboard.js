@@ -1,5 +1,10 @@
 
 Suites = new Mongo.Collection("suites");
+Suites._ensureIndex({"run" : 1, "attributes.id" : 1});
+
+Messages = new Mongo.Collection("messages");
+Messages._ensureIndex({"run" : 1, "id" : 1});
+
 
 this.eventType = function(data){
     map = {
@@ -11,6 +16,29 @@ this.eventType = function(data){
     return map[id.charAt(id.lastIndexOf('-')+1)];
 }
 
+this.helpers = {
+    children: function() {
+        id = '^' + this.attributes.id + '-[stk]{1}\\d*$';
+        console.log(id)
+        return Suites.find({
+          'run': this.run,
+          'attributes.id': {'$regex': id}
+        });
+    },
+    type: function(){
+        return eventType(this);
+    },
+    typeIs: function(type){
+        return eventType(this) === type;
+    },
+    statusClass: function(){
+        if (this.attributes.status){
+            return this.attributes.status.toLowerCase();
+        }
+        return;
+    }
+}
+
 if (Meteor.isClient) {
     // This code only runs on the client
     Template.body.helpers({
@@ -19,32 +47,19 @@ if (Meteor.isClient) {
         }
     });
 
-    Template.suite.helpers({
-        children: function() {
-            id = '^' + this.attributes.id + '-[stk]{1}\\d*$';
-            return Suites.find({
-              'run': this.run,
-              'attributes.id': {'$regex': id}
-            });
-        },
-        type: function(){
-            return eventType(this);
-        },
-        typeIs: function(type){
-            return eventType(this) === type;
-        },
-        statusClass: function(){
-            if (this.attributes.status){
-                return this.attributes.status.toLowerCase();
-            }
-            return;
+    Template.suite.helpers(helpers);
+    Template.test.helpers(helpers);
+    Template.keyword.helpers(helpers);
+    Template.keyword.helpers({
+        messages: function(){
+            return Messages.find({run: this.run, id: this.attributes.id})
         }
     });
 
-    Template.test.helpers({
-        statusClass: function(){
-            if (this.attributes.status){
-                return this.attributes.status.toLowerCase();
+    Template.message.helpers({
+        levelClass: function(){
+            if (this.message.level){
+                return this.message.level.toLowerCase();
             }
             return;
         }
@@ -98,5 +113,20 @@ Meteor.methods({
         }, {}, data, { 'upsert': true }, function(err, doc){
             if (err) throw err;
         });
+    },
+    startKeyword: function (data) {
+        Suites.insert(data);
+    },
+    endKeyword: function (data) {
+        Suites.rawCollection().findAndModify({
+            run: data.run,
+            'attributes.id': data.attributes.id
+        }, {}, data, { 'upsert': true }, function(err, doc){
+            if (err) throw err;
+        });
+    },
+
+    logMessage: function (data){
+        Messages.insert(data);
     }
 });
