@@ -1,0 +1,35 @@
+<template name="runList">
+  <div class="one column row">
+  <div class="column">
+    {{#if Template.subscriptionsReady}}
+      <div class="ui items">
+        {{#each runs}}
+          {{> run}}
+        {{/each}}
+      </div>
+    {{else}}
+        <p>Loading...</p>
+    {{/if}}
+  </div>
+  </div>
+</template>
+
+<template name="run">
+  <div class="item">
+    <div class="ui raised text container segment">
+      <span class="label {{statusClass}}">{{status}}</span>
+      <span class="header">{{name}}</span>
+      <div class="description">
+        <a href="/suite/{{run}}">Details</a>
+      </div>
+      <!---
+      <div class="extra">
+        <i class="green check icon"></i>
+        9 passed
+        <i class="red check icon"></i>
+        1 failed
+      </div>
+      -->
+    </div>
+  </div>
+</template>

@@ -1,27 +1,23 @@
-<head>
-  <title>Robot Dashboard</title>
-</head>
-
-<body>
-  <div class="container">
-    <header>
-      <h2>Run History</h2>
-    </header>
+<template name="suiteLayout">
+  <div class="one column row">
+  <div class="column">
+  <h3>Suite execution</h3>
+  {{#if Template.subscriptionsReady}}
     {{#each runs}}
-      {{> run}}
+      {{> suite}}
     {{/each}}
+  {{else}}
+    <p>Loading...</p>
+  {{/if}}
   </div>
-</body>
-
-<template name="child">
-  <span class="name">{{name}}</span>
+  </div>
 </template>
 
 <template name="suite">
   <div id="{{attributes.id}}" class="{{type}}">
     <div class="element-header" onclick="toggleSuite('{{attributes.id}}')">
       <div class="element-header-left" title="{{name}}">
-        <span class="elapsed" title="Elapsed time">{{attributes.elapsedtime}}</span>
+        <span class="elapsed" title="Elapsed time">{{elapsedTimeFormated}}</span>
         <span class="label {{statusClass}}">SUITE</span>
         <span class="name">{{name}}</span>
       </div>
@@ -45,11 +41,11 @@
           </tr>
           <tr>
             <th>Start / End / Elapsed:</th>
-            <td>{{attributes.starttime}} / {{attributes.endtime}} / {{attributes.elapsedtime}}</td>
+            <td>{{timingDetails}}</td>
           </tr>
           <tr>
             <th>Status:</th>
-            <td>{{attributes.statistics}}</td>
+            <td>{{> statistics}}</td>
           </tr>
         </tbody>
       </table>
@@ -65,11 +61,20 @@
   </div>
 </template>
 
+<template name="statistics">
+  {{#if stats}}
+    {{stats.critical.test}} critical test, {{stats.critical.passed}} passed, <span class="{{stats.criticalClass}}">{{stats.critical.failed}} failed</span><br>
+    {{stats.total.test}} test total, {{stats.total.passed}} passed, <span class="{{stats.totalClass}}">{{stats.total.failed}} failed</span>
+  {{else}}
+    Waiting result...
+  {{/if}}
+</template>
+
 <template name="test">
   <div id="{{attributes.id}}" class="{{type}}">
     <div class="element-header" onclick="toggleTest('{{attributes.id}}')">
       <div class="element-header-left" title="{{name}}">
-        <span class="elapsed" title="Elapsed time">{{attributes.elapsedtime}}</span>
+        <span class="elapsed" title="Elapsed time">{{elapsedTimeFormated}}</span>
         <span class="label {{statusClass}}">TEST</span>
         <span class="name">Testing</span>
       </div>
@@ -89,11 +94,11 @@
           </tr>
           <tr>
             <th>Start / End / Elapsed:</th>
-            <td>{{attributes.starttime}} / {{attributes.endtime}} / {{attributes.elapsedtime}}</td>
+            <td>{{timingDetails}}</td>
           </tr>
           <tr>
             <th>Status:</th>
-            <td><span class="label {{statusClass}}">{{attributes.status}}</span> (critical: {{attributes.critical}})</td>
+            <td><span class="label {{statusClass}}">{{attributes.status}}</span> {{criticalText}}</td>
           </tr>
         </tbody>
       </table>
@@ -110,7 +115,7 @@
   <div id="s1-t1-k1" class="keyword">
     <div class="element-header" onclick="toggleKeyword('{{attributes.id}}')">
       <div class="element-header-left" title="Log">
-        <span class="elapsed" title="Elapsed time">{{attributes.elapsedtime}}</span>
+        <span class="elapsed" title="Elapsed time">{{elapsedTimeFormated}}</span>
         <span class="label keyword {{statusClass}}">KEYWORD</span>
         <span></span>
         <span class="name"><span class="parent-name">{{attributes.libname}} . </span>{{attributes.kwname}}</span>
@@ -132,7 +137,7 @@
           </tr>
           <tr>
             <th>Start / End / Elapsed:</th>
-            <td>{{attributes.starttime}} / {{attributes.endtime}} / {{attributes.elapsedtime}}</td>
+            <td>{{timingDetails}}</td>
           </tr>
         </tbody>
       </table>
@@ -152,7 +157,7 @@
   <table id="element-id-4" class="messages {{levelClass}}-message">
     <tbody>
       <tr class="message-row">
-        <td class="time">{{message.timestamp}}</td>
+        <td class="time">{{timestamp}}</td>
         <td class="{{levelClass}} level">
           <span class="label {{levelClass}}">{{message.level}}</span>
         </td>
@@ -163,8 +168,4 @@
       </tr>
     </tbody>
   </table>
-</template>
-
-<template name="run">
-  {{> suite}}
 </template>
