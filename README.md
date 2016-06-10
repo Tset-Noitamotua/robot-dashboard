@@ -13,7 +13,9 @@ Getting started (Windows 7)
 - cd into folder where you cloned this repository to (e.g. `cd C:\robot-dashboard`)
 - run `meteor`
 - (OPTIONAL: for those who are behind a corporate proxy)
-	- run `set HTTP_PROXY=http://user:password@proxyhost_or_ip:port set HTTPS_PROXY=http://user:password@proxyhost_or_ip:port`
+	- run 
+	- `set HTTP_PROXY=http://user:password@proxyhost_or_ip:port` 
+	- `set HTTPS_PROXY=http://user:password@proxyhost_or_ip:port`
 - after Meteor is running open your browser to http://localhost:3000/
 - run robot-watchdog tests
 - you should see some magic in your browser
